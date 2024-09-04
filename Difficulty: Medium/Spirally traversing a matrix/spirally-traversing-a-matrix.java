@@ -30,41 +30,40 @@ class Solution {
     // Function to return a list of integers denoting spiral traversal of matrix.
     public ArrayList<Integer> spirallyTraverse(int matrix[][]) {
         // code here
-        
         ArrayList<Integer> result = new ArrayList<>();
-        
-        if(matrix == null || matrix.length ==0){
+        if(matrix == null || matrix.length == 0){
             return result;
         }
         
-        int top = 0;
-        int bottom = matrix.length-1;
-        int left = 0;
-        int right = matrix[0].length-1;
+        int startRows = 0;
+        int startCols = 0;
+        int endRows = matrix.length - 1;
+        int endCols = matrix[0].length - 1;
         
-        while(top <= bottom && left<= right){
-            
-            for(int i = left;i<= right;i++){
-                result.add(matrix[top][i]);
+        while (startRows <= endRows && startCols <= endCols) {
+
+            for (int j = startCols; j <= endCols; j++) {
+                result.add(matrix[startRows][j]);
             }
-            top++;
-            
-            for(int i = top;i<=bottom;i++){
-                result.add(matrix[i][right]);
+            startRows++;
+
+            for (int i = startRows; i <= endRows; i++) {
+                result.add(matrix[i][endCols]);
             }
-            right--;
-            
-            if(top <= bottom){
-                for(int i =right;i>=left;i--){
-                    result.add(matrix[bottom][i]);
+            endCols--;
+
+            if (startRows <= endRows) {
+                for (int j = endCols; j >= startCols; j--) {
+                    result.add(matrix[endRows][j]);
                 }
-                bottom--;
+                endRows--;
             }
-            if(left<=right){
-                for(int i = bottom;i>=top;i--){
-                    result.add(matrix[i][left]);
+
+            if (startCols <= endCols) {
+                for (int i = endRows; i >= startRows; i--) {
+                    result.add(matrix[i][startCols]);
                 }
-                left++;
+                startCols++;
             }
         }
         return result;
