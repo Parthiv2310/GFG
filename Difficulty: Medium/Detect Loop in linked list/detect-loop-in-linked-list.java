@@ -59,7 +59,9 @@ class GFG {
                 System.out.println("true");
             else
                 System.out.println("false");
-        }
+        
+System.out.println("~");
+}
     }
 }
 
@@ -80,18 +82,16 @@ class Node
 */
 
 class Solution {
-    // Function to check if the linked list has a loop.
-    public static boolean detectLoop(Node head) {
+    //Function to check if the linked list has a loop.
+    public static boolean detectLoop(Node head){
         // Add code here
         Node slow = head;
         Node fast = head;
-        
-        while(fast != null && fast.next != null){
+        while(slow!=null && fast !=null && fast.next!=null){
             slow = slow.next;
             fast = fast.next.next;
-            if(slow == fast){
-                return true;
-            }
+            if(slow == fast)
+            return true;
         }
         return false;
     }
