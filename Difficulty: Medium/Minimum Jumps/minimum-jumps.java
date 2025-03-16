@@ -27,15 +27,12 @@ public class Main {
             for (int i : array) arr[idx++] = i;
 
             System.out.println(new Solution().minJumps(arr));
-            // System.out.println("~");
+            System.out.println("~");
         }
     }
 }
 
 // } Driver Code Ends
-
-
-
 
 class Solution {
     static int minJumps(int[] arr) {
