@@ -1,126 +1,146 @@
 //{ Driver Code Starts
-/*package whatever //do not write package name here */
-
-import java.io.*;
-import java.math.*;
+// Initial Template for Java
 import java.util.*;
 
-class GFG {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
 
-        int t = Integer.parseInt(sc.next());
-        while (t-- > 0) {
-            int n = Integer.parseInt(sc.next());
-            int k = Integer.parseInt(sc.next());
+// } Driver Code Ends
 
-            String[] words = new String[n];
-
-            for (int i = 0; i < n; i++) {
-                words[i] = sc.next();
+// User function Template for Java
+class Solution {
+    public String findOrder(String[] words) {
+        // Step 1: Create a graph
+        Map<Character, List<Character>> graph = new HashMap<>();
+        Map<Character, Integer> inDegree = new HashMap<>();
+        
+        // Initialize the graph
+        for (String word : words) {
+            for (char c : word.toCharArray()) {
+                graph.putIfAbsent(c, new ArrayList<>());
+                inDegree.putIfAbsent(c, 0);
             }
-
-            Solution ob = new Solution();
-            //  System.out.println(T.findOrder(words,k));
-            String order = ob.findOrder(words, n, k);
-            if (order.length() == 0) {
-                System.out.println(0);
-                continue;
-            }
-            if (order.length() != k) {
-                System.out.println("INCOMPLETE");
-                return;
-            }
-            String temp[] = new String[n];
-            for (int i = 0; i < n; i++) temp[i] = words[i];
-
-            Arrays.sort(temp, new Comparator<String>() {
-                @Override
-                public int compare(String a, String b) {
-                    int index1 = 0;
-                    int index2 = 0;
-                    for (int i = 0;
-                         i < Math.min(a.length(), b.length()) && index1 == index2;
-                         i++) {
-                        index1 = order.indexOf(a.charAt(i));
-                        index2 = order.indexOf(b.charAt(i));
-                    }
-
-                    if (index1 == index2 && a.length() != b.length()) {
-                        if (a.length() < b.length())
-                            return -1;
-                        else
-                            return 1;
-                    }
-
-                    if (index1 < index2)
-                        return -1;
-                    else
-                        return 1;
-                }
-            });
-
-            int flag = 1;
-            for (int i = 0; i < n; i++) {
-                if (!words[i].equals(temp[i])) {
-                    flag = 0;
+        }
+        
+        // Step 2: Build the graph
+        for (int i = 0; i < words.length - 1; i++) {
+            String word1 = words[i];
+            String word2 = words[i + 1];
+            int len = Math.min(word1.length(), word2.length());
+            boolean foundDifference = false;
+            
+            for (int j = 0; j < len; j++) {
+                char c1 = word1.charAt(j);
+                char c2 = word2.charAt(j);
+                if (c1 != c2) {
+                    graph.get(c1).add(c2);
+                    inDegree.put(c2, inDegree.get(c2) + 1);
+                    foundDifference = true;
                     break;
                 }
             }
-
-            System.out.println(flag);
+            
+            // Check for invalid case where word2 is a prefix of word1
+            if (!foundDifference && word1.length() > word2.length()) {
+                return "";
+            }
         }
+        
+        // Step 3: Topological Sort using Kahn's Algorithm
+        Queue<Character> queue = new LinkedList<>();
+        for (char c : inDegree.keySet()) {
+            if (inDegree.get(c) == 0) {
+                queue.add(c);
+            }
+        }
+        
+        StringBuilder order = new StringBuilder();
+        while (!queue.isEmpty()) {
+            char c = queue.poll();
+            order.append(c);
+            for (char neighbor : graph.get(c)) {
+                inDegree.put(neighbor, inDegree.get(neighbor) - 1);
+                if (inDegree.get(neighbor) == 0) {
+                    queue.add(neighbor);
+                }
+            }
+        }
+        
+        // If the order length is not equal to the number of unique characters, there is a cycle
+        if (order.length() != inDegree.size()) {
+            return "";
+        }
+        
+        return order.toString();
+    }
+}
+
+
+//{ Driver Code Starts.
+
+public class GFG {
+    private static boolean validate(String[] original, String order) {
+        Map<Character, Integer> mp = new HashMap<>();
+        for (String word : original) {
+            for (char ch : word.toCharArray()) {
+                mp.put(ch, 1);
+            }
+        }
+        for (char ch : order.toCharArray()) {
+            if (!mp.containsKey(ch)) {
+                return false;
+            }
+            mp.remove(ch);
+        }
+        if (!mp.isEmpty()) {
+            return false;
+        }
+
+        Map<Character, Integer> indexMap = new HashMap<>();
+        for (int i = 0; i < order.length(); i++) {
+            indexMap.put(order.charAt(i), i);
+        }
+
+        for (int i = 0; i < original.length - 1; i++) {
+            String a = original[i];
+            String b = original[i + 1];
+            int k = 0, n = a.length(), m = b.length();
+
+            while (k < n && k < m && a.charAt(k) == b.charAt(k)) {
+                k++;
+            }
+
+            if (k < n && k < m &&
+                indexMap.get(a.charAt(k)) > indexMap.get(b.charAt(k))) {
+                return false;
+            }
+            if (k != n && k == m) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int t = Integer.parseInt(sc.nextLine()); // Number of test cases
+
+        while (t-- > 0) {
+            String[] words = sc.nextLine().split(" ");
+            String[] original = Arrays.copyOf(words, words.length);
+
+            Solution ob = new Solution();
+            String order = ob.findOrder(words);
+
+            if (order.isEmpty()) {
+                System.out.println("\"\"");
+            } else {
+                System.out.println(validate(original, order) ? "true" : "false");
+            }
+            System.out.println("~");
+        }
+
+        sc.close();
     }
 }
 
 // } Driver Code Ends
-
-
-// User function Template for Java
-
-class Solution{
-    public String findOrder(String [] dict, int N, int K){
-        
-        Map<Character,List<Character>> map=new HashMap<>();
-        for(String word:dict){
-            for(char c:word.toCharArray()){
-                map.put(c,new ArrayList<>());
-            }
-        }
-        
-        
-        for(int i=1;i<N;i++){
-            
-            for(int j=0;j<Math.min( dict[i-1].length() , dict[i].length() );j++){
-                if(dict[i-1].charAt(j)!=dict[i].charAt(j)){
-                    map.get(dict[i-1].charAt(j)).add(dict[i].charAt(j));
-                    break;
-                }
-            }
-            
-        }
-        
-        Set<Character> vis = new HashSet<>();
-        Stack<Character> st = new Stack<>();
-        
-        for(Character k:map.keySet()){
-            if(!vis.contains(k))    topologicalSort(map,st,vis,k);
-        }
-        
-        String ans="";
-        while(!st.isEmpty()){
-            ans+=st.pop();
-        }
-        
-        return ans;
-    }
-    void topologicalSort(Map<Character,List<Character>> map, Stack<Character> st, Set<Character> vis,char c){
-        vis.add(c);
-        
-        for(Character nbr:map.get(c)){
-            if(!vis.contains(nbr))  topologicalSort(map,st,vis,nbr);
-        }
-        
-        st.push(c);
-    }
-}
